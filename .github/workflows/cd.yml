@@ -8,6 +8,9 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+      id-token: "write"
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -22,3 +25,17 @@ jobs:
 
       - name: Build app
         run: npm run build
+
+      - id: "auth"
+        uses: "google-github-actions/auth@v2"
+        with:
+          credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v3"
+
+      - name: "Use gcloud CLI"
+        run: "gcloud info"
+
+      - name: "Build and Push"
+        run: "gcloud builds submit --tag us-central1-docker.pkg.dev/glass-timing-493319-i2/notely-ar-repo/notely:latest ."
